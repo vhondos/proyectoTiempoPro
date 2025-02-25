@@ -3,5 +3,6 @@
 
 <template>
   <main>
+    <h1>Buscador</h1>
   </main>
 </template>
