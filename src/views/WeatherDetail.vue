@@ -162,6 +162,7 @@
     Sun, Cloud, CloudRain, CloudSnow, Wind, 
     Droplet, Thermometer, ChevronDown 
   } from 'lucide-vue-next'
+import axios from 'axios'
   
   // Estado
   const location = ref('ZARAGOZA')
@@ -297,7 +298,7 @@
   // Llamada a la API
   const fetchWeatherData = async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         'https://api.open-meteo.com/v1/forecast?' +
         'latitude=41.6488&' +
         'longitude=-0.8891&' +
@@ -306,7 +307,7 @@
         'timezone=auto'
       )
       
-      const data = await response.json()
+      const data = await response.data
       
       // Actualizar datos actuales
       currentTemp.value = Math.round(data.hourly.temperature_2m[0])
