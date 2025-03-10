@@ -18,7 +18,7 @@ export const useLocationStore = defineStore(
     persist: {
       strategies: [
         {
-          key: 'location-store', // (opcional) clave única para el almacenamiento
+          key: 'location-store',
           storage: localStorage,
           paths: ['lugar']
         }

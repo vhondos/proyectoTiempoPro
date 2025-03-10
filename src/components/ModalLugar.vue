@@ -34,7 +34,9 @@
 
         <input type="radio" name="my_tabs_2" class="tab" aria-label="Avisos" />
         <div class="tab-content border-base-300 bg-base-100 p-10 h-full overflow-y-auto">
-          tab content 3
+          <router-link to="/weather-detail" class="btn">
+            Ver meteorología
+          </router-link>
         </div>
       </div>
     </div>

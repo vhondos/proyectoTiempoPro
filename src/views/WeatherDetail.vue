@@ -1,12 +1,12 @@
 <template>
+  <router-link to="/" class="btn fixed top-4 left-4 z-10">
+    Volver
+  </router-link>
   <div class="min-h-screen p-4 text-white relative overflow-hidden">
     <!-- Fondo dinámico -->
     <div class="absolute inset-0 w-full h-full z-0">
-      <img 
-        :src="getWeatherBackground(currentWeatherCode)" 
-        alt="Weather background" 
-        class="w-full h-full object-cover fixed"
-      />
+      <img :src="getWeatherBackground(currentWeatherCode)" alt="Weather background"
+        class="w-full h-full object-cover fixed" />
       <!-- Overlay para mejorar legibilidad -->
       <div class="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
     </div>
@@ -34,8 +34,7 @@
       <!-- Hourly forecast -->
       <div class="bg-sky-500/20 backdrop-blur-lg rounded-xl p-4 mb-6">
         <div class="flex justify-between overflow-auto">
-          <div v-for="hour in hourlyForecast" :key="hour.time" 
-               class="text-center">
+          <div v-for="hour in hourlyForecast" :key="hour.time" class="text-center">
             <div class="text-sm mb-1">{{ hour.time }}</div>
             <Sun v-if="hour.icon === 'sun'" class="w-6 h-6 mx-auto mb-1" />
             <Cloud v-else-if="hour.icon === 'cloud'" class="w-6 h-6 mx-auto mb-1" />
@@ -49,11 +48,11 @@
       <div class="bg-sky-500/20 backdrop-blur-lg rounded-xl overflow-hidden">
         <div class="p-4 text-sm">
           <h2 class="mb-4">PREVISIÓN (10 DÍAS)</h2>
-          
+
           <div v-for="day in dailyForecast" :key="day.date" class="mb-2">
             <!-- Day row (always visible) -->
             <div @click="toggleDay(day.date)"
-                 class="flex items-center justify-between cursor-pointer hover:bg-sky-500/20 rounded-lg p-2">
+              class="flex items-center justify-between cursor-pointer hover:bg-sky-500/20 rounded-lg p-2">
               <span class="w-20">{{ day.name }}</span>
               <div class="flex items-center">
                 <Sun v-if="day.icon === 'sun'" class="w-6 h-6" />
@@ -65,20 +64,16 @@
               <div class="flex items-center space-x-2 flex-1 ml-4">
                 <span class="text-gray-300 w-8">{{ day.minTemp }}°</span>
                 <div class="flex-1 h-1 bg-sky-200/30 rounded-full">
-                  <div class="h-1 bg-white rounded-full" 
-                       :style="`width: ${(day.maxTemp - day.minTemp) * 5}%`"></div>
+                  <div class="h-1 bg-white rounded-full" :style="`width: ${(day.maxTemp - day.minTemp) * 5}%`"></div>
                 </div>
                 <span class="w-8">{{ day.maxTemp }}°</span>
               </div>
-              <ChevronDown 
-                :class="{'rotate-180': expandedDay === day.date}"
-                class="w-5 h-5 ml-2 transition-transform" 
-              />
+              <ChevronDown :class="{ 'rotate-180': expandedDay === day.date }"
+                class="w-5 h-5 ml-2 transition-transform" />
             </div>
 
             <!-- Expanded details -->
-            <div v-if="expandedDay === day.date"
-                 class="bg-sky-600/20 rounded-lg p-4 mt-2 space-y-4">
+            <div v-if="expandedDay === day.date" class="bg-sky-600/20 rounded-lg p-4 mt-2 space-y-4">
               <!-- Weather details grid -->
               <div class="grid grid-cols-2 gap-4">
                 <!-- Temperature -->
@@ -163,9 +158,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { 
-  Sun, Cloud, CloudRain, CloudSnow, Wind, 
-  Droplet, Thermometer, ChevronDown 
+import {
+  Sun, Cloud, CloudRain, CloudSnow, Wind,
+  Droplet, Thermometer, ChevronDown
 } from 'lucide-vue-next'
 import WeatherChart from '../components/WeatherChart.vue'
 import axios from 'axios'
@@ -174,7 +169,7 @@ const { lugar } = useLocationStore();
 
 
 // Estado
-const location = ref('ZARAGOZA')
+const location = ref(lugar?.name || '')
 const currentTemp = ref(0)
 const currentCondition = ref('')
 const maxTemp = ref(0)
@@ -206,19 +201,19 @@ const chartData = ref({
 const getDayName = (dateStr: string) => {
   const date = new Date(dateStr)
   const today = new Date()
-  
+
   // Si es hoy, devolver "Hoy"
   if (date.toDateString() === today.toDateString()) {
     return 'Hoy'
   }
-  
+
   // Si es mañana, devolver "Mañana"
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
   if (date.toDateString() === tomorrow.toDateString()) {
     return 'Mañana'
   }
-  
+
   // Para otros días, devolver abreviatura del día
   const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
   return days[date.getDay()]
@@ -262,9 +257,9 @@ const getWeatherBackground = (weatherCode: number) => {
   else if (weatherCode >= 51 && weatherCode <= 67) internalCode = 3 // Lluvia
   else if (weatherCode >= 71 && weatherCode <= 86) internalCode = 4 // Nieve
   else if (weatherCode >= 95) internalCode = 3 // Tormenta (usamos el mismo fondo que lluvia)
-  
+
   // Imágenes de ejemplo de internet
-  switch(internalCode) {
+  switch (internalCode) {
     case 0: // Soleado
       return 'https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?q=80&w=1974&auto=format&fit=crop'
     case 1: // Parcialmente nublado
@@ -278,7 +273,7 @@ const getWeatherBackground = (weatherCode: number) => {
     default: // Por defecto, soleado
       return 'https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?q=80&w=1974&auto=format&fit=crop'
   }
-  
+
   /* 
   // COMENTARIO: Para usar imágenes locales, reemplaza el código anterior por:
   switch(internalCode) {
@@ -315,43 +310,43 @@ const fetchWeatherData = async () => {
   try {
     const response = await axios.get(
       'https://api.open-meteo.com/v1/forecast?' +
-      'latitude=41.6488&' +
-      'longitude=-0.8891&' +
+      'latitude=' + lugar?.lat + '&' +
+      'longitude=' + lugar?.lon + '&' +
       'hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,precipitation_probability,wind_speed_10m,wind_direction_10m,snow_depth,visibility,weathercode&' +
       'daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&' +
       'timezone=auto'
     )
-    
+
     const data = response.data
-    
+
     // Actualizar datos actuales
     currentTemp.value = Math.round(data.hourly.temperature_2m[0])
     maxTemp.value = Math.round(data.daily.temperature_2m_max[0])
     minTemp.value = Math.round(data.daily.temperature_2m_min[0])
-    
+
     // Actualizar código del tiempo y condición
     currentWeatherCode.value = data.hourly.weathercode[0]
     currentCondition.value = getWeatherCondition(currentWeatherCode.value)
-    
+
     // Descripción del tiempo
     weatherDescription.value = `Se prevé ${currentCondition.value.toLowerCase()} durante el día. Rachas de viento de hasta ${Math.round(data.daily.wind_gusts_10m_max[0])} km/h.`
-    
+
     // Actualizar pronóstico por horas
     const currentHour = new Date().getHours()
     hourlyForecast.value = [
-      { 
-        time: 'Ahora', 
-        temp: Math.round(data.hourly.temperature_2m[0]), 
-        icon: getWeatherIcon(data.hourly.weathercode[0]) 
+      {
+        time: 'Ahora',
+        temp: Math.round(data.hourly.temperature_2m[0]),
+        icon: getWeatherIcon(data.hourly.weathercode[0])
       }
     ]
-    
+
     // Añadir las próximas 5 horas
     for (let i = 1; i <= 24; i++) {
       const hourIndex = currentHour + i
       if (hourIndex < data.hourly.time.length) {
         hourlyForecast.value.push({
-          time: `${(currentHour + i) % 24}`, 
+          time: `${(currentHour + i) % 24}`,
           temp: Math.round(data.hourly.temperature_2m[hourIndex]),
           icon: getWeatherIcon(data.hourly.weathercode[hourIndex])
         })
@@ -370,15 +365,15 @@ const fetchWeatherData = async () => {
       temperature: next4Temps
     }
 
-    console.log("datos",chartData.value)
-    
+    console.log("datos", chartData.value)
+
     // Actualizar pronóstico diario
     const newDailyForecast = []
-    
+
     for (let i = 0; i < data.daily.time.length; i++) {
       const date = data.daily.time[i]
       const weatherCode = data.daily.weathercode[i]
-      
+
       newDailyForecast.push({
         date: date,
         name: getDayName(date),
@@ -401,13 +396,13 @@ const fetchWeatherData = async () => {
         }
       })
     }
-    
+
     // Actualizar el estado
     dailyForecast.value = newDailyForecast
-    
+
   } catch (error) {
     console.error('Error fetching weather data:', error)
-    
+
     // En caso de error, usar datos de ejemplo
     dailyForecast.value = [
       {
@@ -527,7 +522,6 @@ const getWindDirection = (degrees: number) => {
 }
 
 onMounted(() => {
-  console.log( "fasdfasdf", lugar )
   fetchWeatherData()
 })
 </script>
