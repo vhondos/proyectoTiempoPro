@@ -21,7 +21,7 @@
             <li
               v-for="(sugerencia, index) in sugerencias"
               :key="index"
-              class="list-row text-primary-content hover:text-error"
+              class="list-row text-primary-content hover:text-error cursor-pointer"
               @click="seleccionarSugerencia(sugerencia)"
             >
               {{ sugerencia.display_name }}
@@ -37,12 +37,13 @@
             Lugares guardados
           </li>
           <li
-            class="flex justify-between items-center p-1.5 rounded-lg cursor-pointer hover:bg-base-200"
+            class="flex justify-between items-center p-1.5 rounded-lg cursor-pointer hover:bg-base-300"
             v-for="(lugar, index) in lugaresGuardados"
             :key="index"
             @click="cambiarLugar(lugar)"
           >
-            <LugarItem :lugar="lugar" />
+            <span class="text-base font-medium">{{ lugar.name }}</span>
+            <button class="btn btn-error btn-sm" @click="EliminarLugar(lugar)">Eliminar</button>
           </li>
         </ul>
       </div>
@@ -53,6 +54,7 @@
       <div id="map" class="w-full h-full"></div>
     </div>
   </div>
+  <ModalLugar :lugar="lugarActual" />
 </template>
 
 <script setup lang="ts">
@@ -61,14 +63,14 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import 'leaflet-control-geocoder'
 import type { Lugar } from './interfaces/lugar'
-import LugarItem from './components/LugarItem.vue'
-
+import ModalLugar from './components/ModalLugar.vue'
 const inputBuscador = ref('')
 const sugerencias = ref<Lugar[]>([])
 const lugaresGuardados = ref<Lugar[]>([])
 const map = ref<L.Map | null>(null)
 const marker = ref<L.Marker | null>(null)
 let timeoutId: ReturnType<typeof setTimeout> | null = null
+const lugarActual = ref<Lugar | null>(null)
 
 watch(inputBuscador, async (nuevoValor) => {
   if (timeoutId) clearTimeout(timeoutId)
@@ -89,6 +91,11 @@ watch(inputBuscador, async (nuevoValor) => {
   }, 700)
 })
 
+const EliminarLugar = (lugar: Lugar) => {
+  const index = lugaresGuardados.value.indexOf(lugar)
+  lugaresGuardados.value.splice(index, 1)
+}
+
 const seleccionarSugerencia = (sugerencia: Lugar) => {
   if (sugerencia && sugerencia.lat && sugerencia.lon) {
     cambiarLugar(sugerencia)
@@ -103,14 +110,31 @@ const seleccionarSugerencia = (sugerencia: Lugar) => {
 
 const cambiarLugar = (sugerencia: Lugar) => {
   const latLng: L.LatLngExpression = [parseFloat(sugerencia.lat), parseFloat(sugerencia.lon)]
+  lugarActual.value = sugerencia
+  console.log(lugarActual.value.display_name)
+
+  const popupContent = document.createElement('div')
+  popupContent.innerHTML = `<b>${sugerencia.display_name}</b><br/>`
+
+  const button = document.createElement('button')
+  button.innerText = 'Ver detalle'
+  button.classList.add('btn', 'btn-sm', 'mt-1')
+
+  button.addEventListener('click', () => {
+    ;(document.getElementById('modal') as HTMLDialogElement)?.showModal()
+  })
+
+  popupContent.appendChild(button)
+
   if (marker.value) {
-    marker.value.setLatLng(latLng).bindPopup(`<b>${sugerencia.display_name}</b>`).openPopup()
+    marker.value.setLatLng(latLng).setPopupContent(popupContent).openPopup()
   } else {
     marker.value = L.marker(latLng)
       .addTo(map.value as L.Map)
-      .bindPopup(`<b>${sugerencia.display_name}</b>`)
+      .bindPopup(popupContent)
       .openPopup()
   }
+
   map.value!.setView(latLng, 13)
 }
 
@@ -120,6 +144,29 @@ onMounted(() => {
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'OpenStreetMap',
   }).addTo(map.value as L.Map)
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude
+        const lon = position.coords.longitude
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&extratags=1&addressdetails=1`,
+          )
+          const data: Lugar = await response.json()
+          lugaresGuardados.value.unshift(data)
+          cambiarLugar(data)
+        } catch (error) {
+          console.error('Error obteniendo la ubicación inversa:', error)
+        }
+      },
+      (error) => {
+        console.error('Error obteniendo la ubicación:', error)
+      },
+    )
+  }
 })
 </script>
 
