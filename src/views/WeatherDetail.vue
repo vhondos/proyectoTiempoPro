@@ -34,7 +34,7 @@
       <!-- Hourly forecast -->
       <div class="bg-sky-500/20 backdrop-blur-lg rounded-xl p-4 mb-6">
         <div class="flex justify-between overflow-auto">
-          <div v-for="hour in hourlyForecast" :key="hour.time" class="text-center">
+          <div v-for="hour in hourlyForecast" :key="hour.time" class="text-center mr-10">
             <div class="text-sm mb-1">{{ hour.time }}</div>
             <Sun v-if="hour.icon === 'sun'" class="w-6 h-6 mx-auto mb-1" />
             <Cloud v-else-if="hour.icon === 'cloud'" class="w-6 h-6 mx-auto mb-1" />
