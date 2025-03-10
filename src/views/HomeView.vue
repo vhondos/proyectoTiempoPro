@@ -64,6 +64,7 @@ import L from 'leaflet'
 import 'leaflet-control-geocoder'
 import type { Lugar } from '../interfaces/lugar'
 import ModalLugar from '../components/ModalLugar.vue'
+import { useLocationStore } from '@/stores/counter'
 const inputBuscador = ref('')
 const sugerencias = ref<Lugar[]>([])
 const lugaresGuardados = ref<Lugar[]>([])
@@ -71,6 +72,7 @@ const map = ref<L.Map | null>(null)
 const marker = ref<L.Marker | null>(null)
 let timeoutId: ReturnType<typeof setTimeout> | null = null
 const lugarActual = ref<Lugar | null>(null)
+  const { updateLocation } = useLocationStore()
 
 watch(inputBuscador, async (nuevoValor) => {
   if (timeoutId) clearTimeout(timeoutId)
@@ -112,7 +114,7 @@ const cambiarLugar = (sugerencia: Lugar) => {
   const latLng: L.LatLngExpression = [parseFloat(sugerencia.lat), parseFloat(sugerencia.lon)]
   lugarActual.value = sugerencia
   console.log(lugarActual.value.display_name)
-
+  updateLocation(lugarActual.value);
   const popupContent = document.createElement('div')
   popupContent.innerHTML = `<b>${sugerencia.display_name}</b><br/>`
 

@@ -1,12 +1,28 @@
-import { ref, computed } from 'vue'
+// stores/location.ts
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import type { Lugar } from '@/interfaces/lugar'
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
+export const useLocationStore = defineStore(
+  'location',
+  () => {
+    const lugar = ref<Lugar | null>(null)
+
+    function updateLocation(lugarObj: Lugar) {
+      lugar.value = lugarObj
+    }
+
+    return { lugar, updateLocation }
+  },
+  {
+    persist: {
+      strategies: [
+        {
+          key: 'location-store', // (opcional) clave única para el almacenamiento
+          storage: localStorage,
+          paths: ['lugar']
+        }
+      ]
+    } as any
   }
-
-  return { count, doubleCount, increment }
-})
+)
